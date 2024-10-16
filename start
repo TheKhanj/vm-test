@@ -1,13 +1,28 @@
 #!/usr/bin/env sh
 
+OS_ID="$(grep '^ID=' /etc/os-release | cut -d '=' -f 2)"
+
+UEFI=/usr/share/OVMF/OVMF_CODE_4M.fd
+
+if [ "$OS_ID" = "arch" ]; then
+	UEFI=/usr/share/edk2/x64/OVMF_CODE.4m.fd
+fi
+
+# -usbdevice tablet \
+
 qemu-system-x86_64 -cpu host --enable-kvm -smp 3 -m 4G \
-	-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
+	-drive if=pflash,format=raw,readonly=on,file=$UEFI \
 	-drive if=pflash,format=raw,file=./OVMF_VARS.4m.fd \
 	-drive format=qcow2,file=disk.img,if=virtio \
-	-usbdevice tablet \
 	-device virtio-net-pci,netdev=net0 \
 	-netdev tap,id=net0,ifname=debian-12,script=no,downscript=no \
 	-device qemu-xhci \
 	-vga qxl \
-	-spice port=5901,disable-ticketing \
-	-cdrom /mnt/purple/os/debian-12/debian-live-12.7.0-amd64-gnome.iso
+	-spice port=5903,disable-ticketing=on \
+	-device vfio-pci,host=00:02.0,multifunction=on
+
+# -device vfio-pci,host=01:00.0,multifunction=on
+
+# -device vfio-pci,host=01:00.1 \
+
+# -cdrom /mnt/purple/os/debian-12/debian-live-12.7.0-amd64-gnome.iso \

@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+
+modprobe vfio
+modprobe vfio_iommu_type1
+modprobe vfio-pci
+
+# Bind Intel
+GPU_ID="0000:00:02.0"
+echo -n "$GPU_ID" >/sys/bus/pci/drivers/i915/unbind
+echo -n "$GPU_ID" >/sys/bus/pci/drivers/vfio-pci/bind
+
+# Bind Nvidia
+GPU_ID="0000:01:00.0"
+echo "$GPU_ID" >/sys/bus/pci/drivers/nouveau/unbind
+echo "$GPU_ID" >/sys/bus/pci/drivers/vfio-pci/bind

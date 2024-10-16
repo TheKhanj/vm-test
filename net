@@ -3,15 +3,19 @@
 DEV=debian-12
 BR=br0
 
-up() {
-	ip tuntap add name $DEV mode tap || exit 1
-	ip link set dev $DEV up || exit 1
-
-	ip link set dev $DEV master $BR
-}
-
 down() {
 	ip tuntap del name $DEV mode tap
+}
+
+panic() {
+	down && exit $1
+}
+
+up() {
+	ip tuntap add name $DEV mode tap || panic 1
+	ip link set dev $DEV up || panic 1
+
+	ip link set dev $DEV master $BR || panic 1
 }
 
 $@
