@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+qemu-system-x86_64 -cpu host --enable-kvm -smp 3 -m 4G \
+	-drive if=pflash,format=raw,readonly=on,file=/usr/share/OVMF/OVMF_CODE_4M.fd \
+	-drive if=pflash,format=raw,file=./OVMF_VARS.4m.fd \
+	-drive format=qcow2,file=disk.img,if=virtio \
+	-usbdevice tablet \
+	-device virtio-net-pci,netdev=net0 \
+	-netdev tap,id=net0,ifname=debian-12,script=no,downscript=no \
+	-device qemu-xhci \
+	-vga qxl \
+	-spice port=5901,disable-ticketing \
+	-cdrom /mnt/purple/os/debian-12/debian-live-12.7.0-amd64-gnome.iso
